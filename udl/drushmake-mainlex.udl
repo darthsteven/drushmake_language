@@ -2,4 +2,103 @@
 
 language drushmake
 
+# We have to specify the min and max styles we'll be referring to
+
+start_style SSL_DEFAULT
+end_style SSL_VARIABLE
+
+keywords [
+  "core",
+  "api",
+  "projects",
+  "version",
+  "patch",
+  "subdir",
+  "location",
+  "type",
+  "directory_name",
+  "l10n_path",
+  "l10n_url",
+  "overwrite",
+  "download",
+  "url",
+  "md5",
+  "sha1",
+  "sha256",
+  "sha512",
+  "request_type",
+  "data",
+  "filename",
+  "date",
+  "root",
+  "module",
+  "revision",
+  "branch",
+  "tag",
+  "interactive",
+  "username",
+  "password",
+  "libraries",
+  "destination",
+  "includes",
+
+]
+
+keyword_style SSL_IDENTIFIER => SSL_WORD
+
+pattern CS = '\w'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '\(\)\[\]\{\}='
+
+
+initial IN_SSL_DEFAULT
+
+state IN_SSL_DEFAULT:
+
+# One-line comments end at end-of-line.
+'#' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_1
+';' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_1
+
+# Strings
+'"' : paint(upto, SSL_DEFAULT), => IN_SSL_SSTRING
+'\'' : paint(upto, SSL_DEFAULT), => IN_SSL_SSTRING
+
+/[$WS]+/  : #stay
+
+#
+#/[$CS]/ : paint(upto, SSL_WORD), redo, => IN_SSL_DEFINITION1
+/[$CS]+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER)
+
+/[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
+
+################ Comments ################
+
+state IN_SSL_COMMENT_1 :
+/[\r\n]/ : paint(upto, SSL_COMMENT), => IN_SSL_DEFAULT
+
+################ Strings ################
+
+state IN_SSL_SSTRING:
+'\'' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+'"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #
+
+################ Operators ################
+
+state IN_SSL_OP1:
+# Single-char operator -- all ops work as standalone chars
+/[$OP]/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+
+#state IN_SSL_DEFINITION1:
+#
+## Keywords don't seem to be working for me, so I'll do it like this
+#
+#/core/ : paint(include, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+#/api/ : paint(include, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+#/projects/ : paint(include, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+#
+#/[$CS]/ : # stay
+#/[^$CS]/ : paint(upto, SSL_WORD), redo, => IN_SSL_DEFAULT
+
+
 #...

@@ -19,7 +19,7 @@ class KodrushmakeLanguage(KoUDLLanguage):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "7e62ac71-7f25-424f-b4d4-35fe4b735c13"
-    
+
 
     #TODO: Update 'lang_from_udl_family' as appropriate for your
     #      lexer definition. There are four UDL language families:
